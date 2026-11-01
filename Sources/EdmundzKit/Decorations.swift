@@ -60,17 +60,14 @@ final class DecoratedFragment: NSTextLayoutFragment {
         var r = super.renderingSurfaceBounds
         let w = containerWidth
         // decorations are laid out from the container edge, which is `indent` to the left of this fragment's origin
-        r = r.union(CGRect(x: -indent - 8, y: 0, width: w + 16, height: layoutFragmentFrame.height))
+        r = r.union(CGRect(x: -layoutFragmentFrame.origin.x - 8, y: 0, width: w + 16, height: layoutFragmentFrame.height))
         return r
     }
 
-    /// The fragment origin already includes the paragraph's first-line indent; decorations are laid out from the container edge.
-    private var indent: CGFloat {
-        ((textElement as? NSTextParagraph)?.attributedString.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle)?.firstLineHeadIndent ?? 0
-    }
-
     override func draw(at origin: CGPoint, in ctx: CGContext) {
-        let point = CGPoint(x: origin.x - indent, y: origin.y)
+        // `origin` is in the fragment's own space; the container's left edge lies `frame.origin.x` to the left of it. (The frame sits at the
+        // leftmost line fragment, so it is not always the paragraph indent: a one-line "TIP" title and a longer body line differ.)
+        let point = CGPoint(x: origin.x - layoutFragmentFrame.origin.x, y: origin.y)
         let h = layoutFragmentFrame.height
         let w = containerWidth
         ctx.saveGState()

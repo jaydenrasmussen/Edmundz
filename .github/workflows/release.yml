@@ -95,3 +95,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "$TAG" dist/* --clobber
+
+  # Points Casks/edmundz.rb at the new release so `brew install` gets it.
+  cask:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Edmundz-${{ inputs.tag || github.event.release.tag_name }}
+          path: dist
+
+      - name: Update the cask
+        run: |
+          VERSION="${TAG#v}"
+          SHA=$(sha256sum "dist/Edmundz-${VERSION}.dmg" | cut -d' ' -f1)
+          sed -i -E "s/^(  version) \".*\"/\1 \"${VERSION}\"/; s/^(  sha256) \".*\"/\1 \"${SHA}\"/" Casks/edmundz.rb
+          git diff Casks/edmundz.rb
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --quiet || { git commit -am "chore: cask ${TAG}" && git push origin main; }
