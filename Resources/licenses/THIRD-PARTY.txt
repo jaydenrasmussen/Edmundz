@@ -1,0 +1,8 @@
+swift-cmark (cmark-gfm) — BSD 2-Clause — GitHub, John MacFarlane
+Yams — MIT — JP Simard
+SwiftMath — MIT — Michael Griebling, Kostub Deshmukh (iosMath)
+Mermaid 11.4.1 — MIT — Knut Sveidqvist and contributors
+KaTeX 0.16.11 — MIT — Khan Academy and contributors (fonts: KaTeX fonts, SIL OFL 1.1 / MIT)
+Sparkle (direct builds only) — MIT — Sparkle Project
+
+Full license texts for Mermaid and KaTeX are in the app bundle under Resources/licenses.

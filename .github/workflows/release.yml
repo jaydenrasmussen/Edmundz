@@ -1,0 +1,97 @@
+name: Release
+
+# Builds the app and attaches it to a GitHub release.
+#   - runs when a release is published by hand in the GitHub UI
+#   - is called by "Cut release", because a release created with GITHUB_TOKEN does not trigger other workflows
+on:
+  release:
+    types: [published]
+  workflow_call:
+    inputs:
+      tag:
+        description: Tag of the release to build and attach to
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-26
+    env:
+      TAG: ${{ inputs.tag || github.event.release.tag_name }}
+      # Signing and notarization run only when these repository secrets exist; otherwise the build is ad-hoc signed.
+      HAS_CERT: ${{ secrets.BUILD_CERTIFICATE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: go-task/setup-task@v1
+
+      - name: Version from the tag
+        run: |
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+          echo "BUILD=${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+
+      - name: Vendor mermaid and KaTeX
+        run: task vendor
+
+      - name: Unit tests
+        run: task test
+
+      - name: Import signing certificate and notary credentials
+        if: env.HAS_CERT == 'true'
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          CERT="$RUNNER_TEMP/certificate.p12"
+          echo "$BUILD_CERTIFICATE_BASE64" | base64 --decode > "$CERT"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security import "$CERT" -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          xcrun notarytool store-credentials notary --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD"
+
+      - name: Build, sign, notarize and package
+        if: env.HAS_CERT == 'true'
+        env:
+          DEVELOPER_ID: ${{ secrets.DEVELOPER_ID }}
+          NOTARY_PROFILE: notary
+        run: task notarize
+
+      - name: Build and package (ad-hoc signed)
+        if: env.HAS_CERT != 'true'
+        run: |
+          echo "::warning::No signing secrets configured: the app is ad-hoc signed and not notarized."
+          task bundle
+          task dmg
+
+      - name: Collect release files
+        run: |
+          mkdir -p dist
+          cp build/Edmundz.dmg "dist/Edmundz-${VERSION}.dmg"
+          ditto -c -k --sequesterRsrc --keepParent build/Edmundz.app "dist/Edmundz-${VERSION}-macOS.zip"
+          (cd dist && shasum -a 256 * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Edmundz-${{ env.VERSION }}
+          path: dist/*
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" dist/* --clobber

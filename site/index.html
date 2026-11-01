@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edmundz — a Mac Markdown editor that stays rendered</title>
+<meta name="description" content="Edmundz is a native Mac Markdown editor. Your file opens already rendered, and the syntax appears only where you click. Mermaid, LaTeX, images and GitHub Flavored Markdown included.">
+<link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+
+<header class="bar">
+  <a class="wordmark" href="#top">Edmundz</a>
+  <a class="btn" href="#get">Download for Mac</a>
+</header>
+
+<main id="top">
+
+<section class="hero" aria-labelledby="headline">
+  <div class="chips" role="group" aria-label="Formatting shortcuts, applied to the headline below">
+    <button class="chip" type="button" data-fmt="b" aria-pressed="true"><span class="chip-name">Bold</span><span class="keys"><kbd>⌘</kbd><kbd>B</kbd></span><span class="chip-state">on</span></button>
+    <button class="chip" type="button" data-fmt="i" aria-pressed="false"><span class="chip-name">Italic</span><span class="keys"><kbd>⌘</kbd><kbd>I</kbd></span><span class="chip-state">off</span></button>
+    <button class="chip" type="button" data-fmt="u" aria-pressed="false"><span class="chip-name">Underline</span><span class="keys"><kbd>⌘</kbd><kbd>U</kbd></span><span class="chip-state">off</span></button>
+    <p class="source"><code id="src" aria-label="Markdown source of the headline">**Markdown**, rendered
+while *you* type.</code></p>
+  </div>
+
+  <h1 id="headline" class="demo" tabindex="0" aria-label="Markdown, rendered while you type.">
+    <span class="mask"><span class="line" data-line="0"><span class="w b" data-w="0">Markdown</span>, <span class="w" data-w="1">rendered</span></span></span>
+    <span class="mask"><span class="line" data-line="1"><span class="w" data-w="2">while</span> <span class="w i" data-w="3">you</span> <span class="w" data-w="4">type.</span></span></span>
+  </h1>
+
+  <p class="lead reveal">Edmundz is a native Mac editor for Markdown. Your file opens already rendered; click a word and the syntax appears only where you are.</p>
+
+  <figure class="hero-media reveal">
+    <video class="v-wide" autoplay muted loop playsinline preload="metadata" poster="assets/loop-poster.png" width="1800" height="600" aria-label="The Edmundz window: a caret moves through a paragraph and the bold, italic and underline markers appear around the word it is in.">
+      <source src="assets/loop.mp4" type="video/mp4">
+    </video>
+    <video class="v-narrow" autoplay muted loop playsinline preload="none" poster="assets/loop-poster-m.png" width="800" height="760" aria-label="The Edmundz window on a phone-width screen: a caret moves through a paragraph and the bold, italic and underline markers appear around the word it is in.">
+      <source src="assets/loop-m.mp4" type="video/mp4">
+    </video>
+  </figure>
+</section>
+
+<section class="features" id="commands" aria-labelledby="commands-h">
+  <h2 id="commands-h" data-in>Every command has a key.</h2>
+  <div class="cmd" data-ui data-in>
+    <label class="find"><span class="sr">Find a command</span><input id="find" type="search" placeholder="Find a command" autocomplete="off"></label>
+    <ul class="rows" id="rows">
+      <li data-k="bold bold strong asterisk b"><button class="row" type="button" aria-expanded="true"><span class="row-name">Bold</span><span class="keys"><kbd>⌘</kbd><kbd>B</kbd></span></button>
+        <p class="row-note">Wraps the selection, or the word under the caret, in two asterisks. Press it again to unwrap, and it unwraps <code>__underscore__</code> bold too.</p></li>
+      <li data-k="italic emphasis i"><button class="row" type="button" aria-expanded="false"><span class="row-name">Italic</span><span class="keys"><kbd>⌘</kbd><kbd>I</kbd></span></button>
+        <p class="row-note">One asterisk on each side. Inside a bold phrase it leaves the bold alone.</p></li>
+      <li data-k="underline ins u"><button class="row" type="button" aria-expanded="false"><span class="row-name">Underline</span><span class="keys"><kbd>⌘</kbd><kbd>U</kbd></span></button>
+        <p class="row-note">GitHub Flavored Markdown has no underline, so Edmundz writes <code>&lt;ins&gt;text&lt;/ins&gt;</code>, which GitHub draws underlined. It reads <code>&lt;u&gt;</code> too.</p></li>
+      <li data-k="strikethrough strike tilde x"><button class="row" type="button" aria-expanded="false"><span class="row-name">Strikethrough</span><span class="keys"><kbd>⇧</kbd><kbd>⌘</kbd><kbd>X</kbd></span></button>
+        <p class="row-note">Two tildes around the text, the way GFM writes it.</p></li>
+      <li data-k="heading headings title h1 h2 h3 h4 h5 paragraph"><button class="row" type="button" aria-expanded="false"><span class="row-name">Headings</span><span class="keys"><kbd>⌘</kbd><kbd>1</kbd><kbd>–</kbd><kbd>5</kbd></span></button>
+        <p class="row-note">⌘1 to ⌘5 set the level and ⌘0 makes a paragraph again. Press the level a line already has and the heading comes off.</p></li>
+      <li data-k="link url k"><button class="row" type="button" aria-expanded="false"><span class="row-name">Link</span><span class="keys"><kbd>⌘</kbd><kbd>K</kbd></span></button>
+        <p class="row-note">Wraps the selection as a link and puts the caret in the address. Inside an existing link it selects the address so you can change it.</p></li>
+      <li data-k="task checklist todo list"><button class="row" type="button" aria-expanded="false"><span class="row-name">Task list</span><span class="keys"><kbd>⇧</kbd><kbd>⌘</kbd><kbd>9</kbd></span></button>
+        <p class="row-note">Turns the lines into tasks. Click a checkbox to tick it; the click edits the Markdown underneath, as one undo step.</p></li>
+      <li data-k="code inline backtick c"><button class="row" type="button" aria-expanded="false"><span class="row-name">Code</span><span class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>C</kbd></span></button>
+        <p class="row-note">Backticks around the selection, or a pair with the caret between them.</p></li>
+    </ul>
+    <p class="none" id="none" hidden>No command matches. Try “bold”, “link” or “heading”.</p>
+  </div>
+</section>
+
+<section class="draws" id="draws" aria-labelledby="draws-h">
+  <h2 id="draws-h" data-in>Everything draws where you wrote it.</h2>
+  <div class="idx">
+    <div class="names" role="tablist" aria-label="What Edmundz renders" data-in>
+      <button role="tab" aria-selected="true" aria-controls="p-diagram" id="t-diagram" type="button">Diagrams</button>
+      <button role="tab" aria-selected="false" aria-controls="p-math" id="t-math" type="button" tabindex="-1">Math</button>
+      <button role="tab" aria-selected="false" aria-controls="p-table" id="t-table" type="button" tabindex="-1">Tables</button>
+      <button role="tab" aria-selected="false" aria-controls="p-callout" id="t-callout" type="button" tabindex="-1">Callouts</button>
+      <button role="tab" aria-selected="false" aria-controls="p-image" id="t-image" type="button" tabindex="-1">Images</button>
+    </div>
+    <div class="stage" data-in>
+      <figure id="p-diagram" role="tabpanel" aria-labelledby="t-diagram">
+        <picture><source media="(max-width: 600px)" srcset="assets/diagram-m.png"><img src="assets/diagram.png" width="1800" height="660" alt="A Mermaid flowchart drawn inside the Edmundz window, between the lines of the document."></picture>
+        <figcaption>A Mermaid diagram becomes a vector picture in the page. The renderer starts only when a diagram needs it and is released a moment after.</figcaption>
+      </figure>
+      <figure id="p-math" role="tabpanel" aria-labelledby="t-math" hidden>
+        <picture><source media="(max-width: 600px)" srcset="assets/math-m.png"><img src="assets/math.png" width="1800" height="660" alt="Inline formulas set in a sentence and a centered display integral, rendered in the Edmundz window."></picture>
+        <figcaption>LaTeX sits in the sentence at the right baseline. A native renderer draws most of it; the rest falls back to KaTeX. Currency like $5 and $10 stays text.</figcaption>
+      </figure>
+      <figure id="p-table" role="tabpanel" aria-labelledby="t-table" hidden>
+        <picture><source media="(max-width: 600px)" srcset="assets/table-m.png"><img src="assets/table.png" width="1800" height="500" alt="A GFM table drawn with aligned columns and a header row."></picture>
+        <picture><source media="(max-width: 600px)" srcset="assets/table-raw-m.png"><img src="assets/table-raw.png" width="1800" height="500" alt="The same table with the caret inside it, shown as plain pipes."></picture>
+        <figcaption>Tables draw as tables. Put the caret inside and they turn back into the pipes you typed, so you edit the real text.</figcaption>
+      </figure>
+      <figure id="p-callout" role="tabpanel" aria-labelledby="t-callout" hidden>
+        <picture><source media="(max-width: 600px)" srcset="assets/callout-m.png"><img src="assets/callout.png" width="1800" height="660" alt="A block quote, a note callout and a warning callout."></picture>
+        <figcaption>Quotes and GitHub alerts keep their bar and their tint. The brackets and arrows are still in the file; they only stop showing.</figcaption>
+      </figure>
+      <figure id="p-image" role="tabpanel" aria-labelledby="t-image" hidden>
+        <picture><source media="(max-width: 600px)" srcset="assets/image-m.png"><img src="assets/image.png" width="1800" height="860" alt="A picture shown in the document with a line of text under it."></picture>
+        <figcaption>Pictures appear in the text, sized by <code>{width=640}</code> if you ask. Paste or drop one and it is saved next to the document with the link written for you.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how" aria-labelledby="how-h">
+  <div class="field left">
+    <h2 class="sr" id="how-h">How it works</h2>
+    <h2 class="clause" id="clause" aria-live="polite">First, it opens rendered.</h2>
+    <ol class="stages" aria-hidden="true">
+      <li class="on">It opens rendered</li><li>Click and markers appear</li><li>Tables turn to pipes</li><li>Plain Markdown on disk</li>
+    </ol>
+  </div>
+  <div class="field right">
+    <div class="frag" id="frag">
+      <picture><source media="(max-width: 600px)" srcset="assets/open-m.png"><img class="f on" src="assets/open.png" width="1800" height="600" alt="The Edmundz window just after opening a file: a heading, a paragraph with bold, italic and underlined words, and two tasks, no caret."></picture>
+      <picture><source media="(max-width: 600px)" srcset="assets/caret-m.png"><img class="f" src="assets/caret.png" width="1800" height="600" alt="The same paragraph with the caret in the word rendered: two dimmed asterisks appear on either side of it."></picture>
+      <picture><source media="(max-width: 600px)" srcset="assets/table-raw-m.png"><img class="f" src="assets/table-raw.png" width="1800" height="500" alt="A table with the caret inside it, shown as plain pipes."></picture>
+      <pre class="f file" data-ui><code># Release notes
+
+Edmundz opens your file **rendered**, with no caret and
+no raw syntax in the way. It reads like a *finished page*
+until you decide to edit it, and <ins>nothing changes</ins>
+on disk until you do.
+
+- [x] Headings, lists and links look like themselves
+- [ ] Click anywhere to start editing</code></pre>
+    </div>
+  </div>
+  <div class="slider">
+    <label class="sr" for="stage">Stage</label>
+    <div class="track"><span class="fill" aria-hidden="true"></span><input id="stage" type="range" min="0" max="3" step="1" value="0" aria-describedby="clause"></div>
+    <div class="stops" aria-hidden="true"><span>Opens</span><span>Click</span><span>Tables</span><span>Saved</span></div>
+  </div>
+</section>
+
+<section class="proof" id="built" aria-labelledby="built-h">
+  <div class="strip" data-in>
+    <h2 id="built-h">Built on</h2>
+    <a href="https://github.com/github/cmark-gfm">cmark-gfm</a>
+    <a href="https://mermaid.js.org">Mermaid</a>
+    <a href="https://katex.org">KaTeX</a>
+    <a href="https://github.com/mgriebling/SwiftMath">SwiftMath</a>
+    <a href="https://github.com/jpsim/Yams">Yams</a>
+  </div>
+  <p class="measured" data-in>Measured on an M2 Pro: a 1 MB file opens in 40 ms, a keystroke takes about 2 ms, it idles at 0.1% CPU, and it uses about 45 MB.</p>
+</section>
+
+<section class="get" id="get" aria-labelledby="get-h">
+  <h2 id="get-h" class="sr">Get Edmundz</h2>
+  <form class="blank" action="mailto:hello@edmundz.app" method="get" data-in>
+    <input type="hidden" name="subject" value="Edmundz download link">
+    <p class="sentence">Mail the link to <label class="sr" for="email">Your email address</label><input id="email" name="body" type="email" required placeholder="you@mac.com" autocomplete="email"> <button type="submit">Send</button></p>
+  </form>
+  <p class="fine" data-in>This opens your mail app with the message written. Edmundz needs macOS 26 and an Apple silicon Mac.</p>
+</section>
+
+</main>
+
+<footer class="tiles" aria-label="Footer">
+  <div class="tile t-state"><p>A Markdown editor that stays rendered while you edit it.</p><p class="legal">© Edmundz. macOS 26 or later, Apple silicon.</p></div>
+  <nav class="tile t-nav" aria-label="Sections"><ul><li><a href="#commands">Commands</a></li><li><a href="#draws">What it draws</a></li><li><a href="#how">How it works</a></li><li><a href="#built">Built on</a></li><li><a href="#get">Get it</a></li></ul></nav>
+  <div class="tile t-req"><p>Requires macOS 26 and an Apple silicon Mac. About 45 MB in use.</p></div>
+  <a class="tile t-mail" href="mailto:hello@edmundz.app">hello@<wbr>edmundz.app</a>
+  <div class="tile t-word" aria-hidden="true">Edmundz</div>
+  <a class="tile t-cta" href="#get">Download for Mac</a>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

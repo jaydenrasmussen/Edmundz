@@ -1,0 +1,15 @@
+.build/
+build/
+.swiftpm/
+*.xcodeproj
+.DS_Store
+.taste-skill/
+spike/.build/
+spike/vendor/
+# downloaded by `task vendor`
+Resources/mermaid.min.js
+Resources/katex.min.js
+Resources/katex.min.css
+Resources/fonts/
+Resources/licenses/mermaid.txt
+Resources/licenses/katex.txt

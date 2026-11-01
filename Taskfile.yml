@@ -1,0 +1,88 @@
+version: '3'
+
+vars:
+  APP: build/Edmundz.app
+  CLT_FW: /Library/Developer/CommandLineTools/Library/Developer/Frameworks
+  # With only the Command Line Tools, swift-testing needs its framework path passed explicitly.
+  TEST_FLAGS:
+    sh: '[ "$(xcode-select -p)" = /Library/Developer/CommandLineTools ] && echo "-Xswiftc -F{{.CLT_FW}} -Xlinker -F{{.CLT_FW}} -Xlinker -rpath -Xlinker {{.CLT_FW}}" || true'
+
+tasks:
+  default:
+    desc: "List tasks"
+    cmds: [task --list]
+    silent: true
+
+  build:
+    desc: "Debug build of every target"
+    cmds: [swift build]
+
+  release:
+    desc: "Release build of every target"
+    cmds: [swift build -c release]
+
+  test:
+    desc: "Run unit tests"
+    cmds: ["swift test {{.TEST_FLAGS}}"]
+
+  run:
+    desc: "Build the .app bundle and open it (pass a file: task run -- path/to/file.md)"
+    deps: [bundle]
+    cmds:
+      - open {{.APP}} {{if .CLI_ARGS}}--args {{.CLI_ARGS}}{{end}}
+
+  bundle:
+    desc: "Assemble build/Edmundz.app from a release build (DIRECT channel, ad-hoc signed)"
+    cmds: [scripts/bundle.sh direct]
+
+  bundle:mas:
+    desc: "Assemble the Mac App Store variant (no Sparkle, MAS entitlements)"
+    cmds: [scripts/bundle.sh mas]
+
+  bench:
+    desc: "Performance gates: open, typing, caret, idle CPU and memory budgets (fails on a miss)"
+    cmds:
+      - swift build -c release --product EdmundzBench
+      - .build/release/EdmundzBench
+
+  site:assets:
+    desc: "Regenerate the landing page screenshots and hero loop from the real app (needs ffmpeg)"
+    cmds: [scripts/site-assets.sh]
+
+  site:lint:
+    desc: "Lint the landing page against the design skill's house rules"
+    cmds:
+      - /opt/homebrew/bin/node $HOME/.claude/skills/design-taste-frontend/scripts/lint.mjs site/index.html site/style.css site/app.js
+
+  site:shot:
+    desc: "Screenshot the landing page with WebKit: task site:shot -- <width> <out.png> [height|full]"
+    cmds:
+      - swift scripts/webshot.swift site/index.html {{.CLI_ARGS}} --dark
+
+  site:open:
+    desc: "Open the landing page in the default browser"
+    cmds: [open site/index.html]
+
+  check:
+    desc: "Tests plus performance gates"
+    cmds:
+      - task: test
+      - task: bench
+
+  vendor:
+    desc: "Download the pinned JS used by the on-demand renderers (mermaid, katex)"
+    cmds: [scripts/vendor.sh]
+
+  dmg:
+    desc: "Build build/Edmundz.dmg from the DIRECT bundle"
+    deps: [bundle]
+    cmds: [scripts/dmg.sh]
+
+  notarize:
+    desc: "Sign with Developer ID, notarize and staple (needs DEVELOPER_ID and NOTARY_PROFILE)"
+    cmds: [scripts/notarize.sh]
+
+  clean:
+    desc: "Remove build products"
+    cmds:
+      - rm -rf .build build
